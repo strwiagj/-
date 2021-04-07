@@ -1,0 +1,45 @@
+html,body{
+	width:100%;
+}
+
+body{
+	margin:0;
+	height:100%;
+	display:flex;
+}
+
+.container{
+	display:flex;	
+	margin:25vh 25vw;
+	width:50vw;
+	height:25vh;
+	align-items:center;
+	justify-content:center;	
+}
+
+.quote-content{
+	display:flex;
+	flex-direction:column;
+	border:1px solid green;
+	margin:1vw;
+}
+
+.quote{
+	padding:5vh;
+	flex-grow:4;
+}
+
+.author{
+	flex-grow:1;
+	text-align:right;
+	padding:1vw;
+}
+
+.next-quote-btn{
+	flex-grow:2;
+	background:green;
+	width:5vw;
+	height:3vh;
+	line-height:1vh;
+	margin:1vh 20vw;
+}
