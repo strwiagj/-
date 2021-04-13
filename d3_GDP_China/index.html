@@ -1,0 +1,111 @@
+ <head>
+ <script src = "https://d3js.org/d3.v6.min.js" >  </script>
+ <style text="text/css">
+ body{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ }
+ .pic{
+ display:flex;
+ }
+ </style>
+ </head>
+ <body>
+ <script>
+    //绘制中国近二十年(2000-2020年)的GDP柱状图,单位(亿元)
+    /* dataset = [
+    [ 2000, 100280.1 ],  [ 2001, 110863.1 ],
+    [ 2002, 121717.4 ],  [ 2003, 137422 ],
+    [ 2004, 161840.2 ],  [ 2005, 187318.9 ],
+    [ 2006, 219438.5 ],  [ 2007, 270092.3 ],
+    [ 2008, 319244.6 ],  [ 2009, 348517.7 ],
+    [ 2010, 412119.3 ],  [ 2011, 487940.2 ],
+    [ 2012, 538580 ], [ 2013, 592963.2 ],
+    [ 2014, 643563.1 ],  [ 2015, 688858.2 ],
+    [ 2016, 746395.1 ],  [ 2017, 832035.9 ],
+    [ 2018, 997289.9 ],  [ 2019, 986515.2 ],
+    [ 2020, 1015986.2 ]
+    ];
+     */
+    
+//GDP数据集
+const dataset = [100280.1, 110863.1, 121717.4, 137422, 161840.2, 187318.9, 219438.5, 270092.3, 319244.6, 348517.7, 412119.3, 487940.2, 538580, 592963.2, 643563.1, 688858.2, 746395.1, 832035.9, 997289.9, 986515.2, 1015986.2]
+
+//SVG柱状图高度，宽度
+const h = 500;
+const w = 700;
+
+//预留坐标轴位置
+const marginBottom = 50;
+const marginLeft = 70;
+
+const yScale = d3.scaleLinear()
+    .domain([0, d3.max(dataset)*1.2])
+    .range([0,h-marginBottom])
+
+const svg = d3.select("body")
+    .append("svg")
+	.attr("width",w)
+	.attr("height",h)
+	
+	
+	svg.selectAll("rect")
+    .data(dataset)
+    .enter()
+    .append("rect")
+    .attr("x", (d,i) => marginLeft+i*30)
+    .attr("y",d=>h-marginBottom-yScale(d))
+    .attr("height",d=>yScale(d))
+	.attr("width",25)
+	.attr("fill","navy")
+	
+	svg.selectAll("text")
+	.data(dataset)
+	.enter()
+	.append("text")
+	.attr("x",(d,i)=>marginLeft+i*30)
+	.attr("y",d=>h-marginBottom-yScale(d)-5)
+	.attr("font-size",6)
+	.text(d=>d)
+
+const timeScale = d3.scaleTime()
+	.domain([new Date(1999,06,31),new Date(2020,06,31)])
+	.range([marginLeft,w])
+	
+const xAxis = d3.axisBottom(timeScale).ticks(10);	
+
+//底部坐标轴
+	svg.append("g")
+	.attr("transform","translate(0," + (h-marginBottom) + ")")
+	.call(xAxis)
+	.attr("fill","red")
+
+//左部坐标轴
+const yAxisScale = d3.scaleLinear()
+    .domain([0, d3.max(dataset)*1.2])
+    .range([h-marginBottom,0])
+
+const yAxis = d3.axisLeft(yAxisScale)
+	
+	svg.append("g")
+	.attr("transform","translate(" + marginLeft + ",0)")
+	.call(yAxis)
+	.attr("fill","red")
+
+//图例
+svg.append("text")
+.attr("x",marginLeft+30)
+.attr("y",marginBottom)
+.text("单位:亿元")
+
+//标题
+svg.append("text")
+.attr("x",marginLeft + 270)
+.attr("y",20)
+.text("中国近二十年GDP")
+
+svg.attr("class","pic")
+
+</script>
+</body>

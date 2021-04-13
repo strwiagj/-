@@ -1,0 +1,11 @@
+{
+  "keywords": [
+    "data visualization",
+    "d3"
+  ],
+  "dependencies": {
+    "d3": "3.x",
+    "d3-axis": "^2.1.0",
+    "d3-scale": "^3.2.4"
+  }
+}
