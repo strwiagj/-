@@ -1,0 +1,82 @@
+ <head>
+ <script src = "https://d3js.org/d3.v6.min.js"></script>
+ <script src = "./d3-legend.min.js"></script>
+ <script src='./topojson.js'></script>
+ <style type="text/css">
+ #title{
+ text-align:center;
+ }
+ 
+ #description{
+ font-size:8;
+ font-weight:normal;
+ text-align:center;
+ }
+ 
+.q0-5{fill:rgb(193,255,193);}
+.q1-5{fill:rgb(155,205,155);} 
+.q2-5{fill:rgb(84,255,159);}
+.q3-5{fill:rgb(127,255,0);} 
+.q4-5{fill:rgb(0,255,0);}
+
+.county{
+stroke:green;
+stroke-width:1;
+}
+ </style>
+ </head>
+ 
+ <body>
+ <section>
+ <h1 id="title">United States Educational Attainment</h1>
+ <h3 id="description">Percentage of adults age 25 and older with a bachelor's degree or higher (2010-2014)</h3>
+ </section>
+ 
+ <script>
+ //svg height,width
+ const h = 1000;
+ const w = 1800;
+ 
+ const svg = d3.select("section").append("svg").attr("width",w).attr("height",h);
+ const margin = {left:500,top:120,right:100,bottom:200};
+ const innerWidth = w - margin.left - margin.right;
+ const innerHeight = h - margin.top - margin.bottom;
+ 
+ const colorScale = d3.scaleThreshold().domain([0.16,0.26,0.36,0.5]).range(d3.range(5).map(i=>"q"+i+"-5"));
+ 
+ svg.append("g").attr("id","legend");
+ svg.append("g").attr("id","maingroup").attr("transform",`translate(${margin.left},${margin.top})`);
+ 
+ const legend = d3.legendColor().scale(colorScale).useClass(true).labelFormat(d3.format(".0%")).labels(d3.legendHelpers.thresholdLabels).orient("horizontal").labelAlign("middle")
+				.shapePadding(50).labelWrap(40);
+ d3.select("#legend").attr("transform",`translate(1400,0)`).call(legend);
+ 
+ const geo = d3.geoPath();
+ 
+ const EDUCATION_FILE = 'https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/for_user_education.json';
+ const COUNTIES_FILE = 'https://cdn.freecodecamp.org/testable-projects-fcc/data/choropleth_map/counties.json';
+ 
+Promise.all([d3.json(EDUCATION_FILE),d3.json(COUNTIES_FILE)]).then(values=>{
+	const edu = values[0];
+	const us = values[1];
+
+	const usamap = topojson.feature(us,us.objects.counties);
+	d3.select("#maingroup").selectAll("path").data(usamap.features).enter().append("path").attr("d",geo).attr("class","county",)
+		.attr("data-fips",d => d["id"])
+		.attr("data-edu",d =>{
+			const eduData = edu.filter(obj=>obj["fips"]==d["id"]);
+			return eduData[0]["bachelorsOrHigher"];
+		})
+		.attr("class",d=>{
+			const eduData = edu.filter(obj=>obj["fips"]==d["id"]);
+			return colorScale(eduData[0]["bachelorsOrHigher"]/100.0);
+		})
+		.append("title")
+		.attr("id","tooltip")
+		.text(d=>{
+			const result = edu.filter(obj=>obj["fips"]==d["id"])[0];
+			return 'state:' + result["state"] + '\n' + 'area_name:' + result["area_name"] + '\n' + 'bachelorsOrHigher:' + result['bachelorsOrHigher'];
+		});
+}) 
+ </script>
+ </body>
