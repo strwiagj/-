@@ -1,0 +1,71 @@
+ <head>
+ <script src = "https://d3js.org/d3.v6.min.js"></script>
+ <script src = "./d3-legend.min.js"></script>
+ <style text="text/css">
+ #title,#description{
+ text-align:center;
+ }
+ 
+ #description{
+ font-size:7;
+ font-weight:normal;
+ }
+ 
+ .label-text{
+ font-size:8;
+ text-anchor:middle;
+ }
+ 
+ </style>
+ </head>
+ 
+ <body>
+ <section id="vedio-sale-map">
+ <h1 id="title">Vedio Game Sales</h1>
+ <h3 id="description">Top 100 Most Sold Video Games Grouped by Platform</h3>
+ </section>
+ <script>
+ const w = 1600;
+ const h = 1000;
+ const margin = {left:250,top:80,right:100,bottom:120};
+ 
+ const innerWidth = w - margin.left - margin.right;
+ const innerHeight = h - margin.top - margin.bottom;
+ 
+ const svg = d3.select("#vedio-sale-map").append("svg").attr("width",w).attr("height",h);
+ 
+ const colorScale = d3.scaleOrdinal().range(d3.schemePaired);
+ 
+ svg.append("g").attr("id","main-content");
+ svg.append("g").attr("id","legend");
+ 
+ 
+ 
+ const VEDIO_FILE = "https://cdn.freecodecamp.org/testable-projects-fcc/data/tree_map/video-game-sales-data.json"
+ d3.json(VEDIO_FILE).then(data=>{
+	let root = d3.hierarchy(data).sum(d=>d.value).sort((a,b)=>{return b.height-a.height || b.value-a.value});
+	root = d3.treemap().size([innerWidth,innerHeight]).paddingInner(1).round(true)(root);
+	
+	d3.select("#main-content").selectAll("rect").data(root.descendants().filter(d=>d.height==0)).join("rect")
+		.attr("x",d=>d["x0"]+margin.left)
+		.attr("y",d=>d["y0"]+margin.top)
+		.attr("width",d=>d["x1"]-d["x0"])
+		.attr("height",d=>d["y1"]-d["y0"])
+		.attr("fill",d=>colorScale(d.data.category));
+		
+	
+	d3.select("#main-content").selectAll("text").data(root.descendants().filter(d=>d.height==0)).join("text")
+		.attr("x",d=>{
+		return d["x0"]+margin.left+(d["x1"]-d["x0"])/2.0;
+		})
+		.attr("y",d=>{
+		return d["y0"]+margin.top+(d["y1"]-d["y0"])/2.0;
+		})
+		.text(d=>d.data.name)
+		.attr("class","label-text")
+		
+	const legend = d3.legendColor().scale(colorScale);
+	d3.select("#legend").attr("transform",`translate(${1520},${300})`).call(legend);
+ })
+ </script>
+ </body>
